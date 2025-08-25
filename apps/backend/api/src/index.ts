@@ -10,6 +10,7 @@ import { listProjects, getProject, saveProject, listSaved } from './projects';
 import { createBidRoom, getBidRoom, listBidRooms, addArtifact, addTask, inviteMember, getRoomArtifacts, getRoomTasks } from './bidrooms';
 import { listRooms, getRoom, listMessages, postMessage } from './lounge';
 import { listPosts, getPost, createPost, listComments, addComment } from './community';
+import { listNotifications, markRead, createNotification } from './inbox';
 
 const app = Fastify();
 await app.register(cors, { origin: true });
@@ -409,6 +410,47 @@ app.post('/lounge/rooms/:id/messages', async (req, reply) => {
     }
     if (error instanceof Error && error.message === 'Message text cannot be empty') {
       return reply.code(400).send({ error: 'text_cannot_be_empty' });
+    }
+    throw error;
+  }
+});
+
+// Inbox routes
+app.get('/inbox', async (req) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  return listNotifications(userId);
+});
+
+app.post('/inbox/:id/read', async (req, reply) => {
+  const { id } = req.params as any;
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  
+  const success = await markRead(userId, id);
+  if (!success) {
+    return reply.code(404).send({ error: 'notification_not_found' });
+  }
+  
+  return { success: true };
+});
+
+app.post('/inbox', async (req, reply) => {
+  const isAdmin = req.headers['x-admin'] === '1';
+  if (!isAdmin) {
+    return reply.code(401).send({ error: 'admin_required' });
+  }
+  
+  const { userId, type, title, body } = req.body as any;
+  
+  if (!userId || !title || !body) {
+    return reply.code(400).send({ error: 'userId, title, and body are required' });
+  }
+  
+  try {
+    const notification = await createNotification({ userId, type, title, body });
+    return reply.code(201).send(notification);
+  } catch (error) {
+    if (error instanceof Error && (error.message === 'Title is required' || error.message === 'Body is required')) {
+      return reply.code(400).send({ error: error.message });
     }
     throw error;
   }

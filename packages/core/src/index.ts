@@ -9,6 +9,7 @@ export interface FeatureFlags {
   projects: boolean;
   lounge: boolean;
   community: boolean;
+  inbox: boolean;
 }
 
 export const featureFlags: FeatureFlags = {
@@ -22,6 +23,7 @@ export const featureFlags: FeatureFlags = {
   projects: true,
   lounge: false,
   community: false,
+  inbox: false,
 };
 
 export interface ModuleRegistryItem {
@@ -91,5 +93,11 @@ export const modulesRegistry: ModuleRegistryItem[] = [
     title: 'Community',
     description: 'Discussion posts and knowledge sharing',
     path: '/community',
+  },
+  {
+    key: 'inbox',
+    title: 'Inbox',
+    description: 'Notifications and activity updates',
+    path: '/inbox',
   },
 ];
