@@ -13,6 +13,7 @@ import { listPosts, getPost, createPost, listComments, addComment } from './comm
 import { listNotifications, markRead, createNotification } from './inbox';
 import { getPoints, addPoints, listLeaderboard, listBadges, listMyBadges, logEvent } from './gamification';
 import { getTodayQuiz, getQuizById, submitResponse, getMyResponse, getStats, getHistory } from './quiz';
+import { getToday as getTodayWaterMinute, getById as getWaterMinuteById, listHistory as getWaterMinuteHistory } from './waterMinute';
 
 const app = Fastify();
 await app.register(cors, { origin: true });
@@ -575,6 +576,28 @@ app.get('/quiz/history', async (req) => {
   const { limit } = req.query as any;
   const limitNum = limit ? parseInt(limit, 10) : 14;
   return getHistory(limitNum);
+});
+
+// Water Minute routes
+app.get('/water-minute/today', async () => {
+  const minute = await getTodayWaterMinute();
+  if (!minute) {
+    return { error: 'no_minute_available' };
+  }
+  return minute;
+});
+
+app.get('/water-minute/history', async (req) => {
+  const { limit } = req.query as any;
+  const limitNum = limit ? parseInt(limit, 10) : 14;
+  return getWaterMinuteHistory(limitNum);
+});
+
+app.get('/water-minute/:id', async (req, reply) => {
+  const { id } = req.params as any;
+  const minute = await getWaterMinuteById(id);
+  if (!minute) return reply.code(404).send({ error: 'minute_not_found' });
+  return minute;
 });
 
 const port = Number(process.env.PORT || 3001);

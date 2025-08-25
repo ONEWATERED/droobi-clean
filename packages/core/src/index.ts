@@ -12,6 +12,7 @@ export interface FeatureFlags {
   inbox: boolean;
   gamification: boolean;
   quiz: boolean;
+  waterMinute: boolean;
 }
 
 export const featureFlags: FeatureFlags = {
@@ -28,6 +29,7 @@ export const featureFlags: FeatureFlags = {
   inbox: false,
   gamification: false,
   quiz: false,
+  waterMinute: false,
 };
 
 export interface ModuleRegistryItem {
@@ -115,5 +117,11 @@ export const modulesRegistry: ModuleRegistryItem[] = [
     title: 'Quiz',
     description: 'Daily knowledge questions and community stats',
     path: '/quiz',
+  },
+  {
+    key: 'waterMinute',
+    title: 'Water Minute',
+    description: 'Daily 60-second insights on water technology and trends',
+    path: '/water-minute',
   },
 ];
