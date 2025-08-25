@@ -2,9 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Mail, ExternalLink } from 'lucide-react';
 import { getEffectiveSettings } from '@/lib/settings';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 export default async function AboutPage() {
   const settings = await getEffectiveSettings();
+  const sanitizedAboutHtml = sanitizeHtml(settings.aboutHtml);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -27,7 +29,7 @@ export default async function AboutPage() {
                 <CardContent>
                   <div 
                     className="prose max-w-none text-gray-700 leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: settings.aboutHtml }}
+                    dangerouslySetInnerHTML={{ __html: sanitizedAboutHtml }}
                   />
                 </CardContent>
               </Card>

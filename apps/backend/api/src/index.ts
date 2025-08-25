@@ -1,11 +1,25 @@
 import { bootOtel } from './observability/otel';
 import { sentryPlugin } from './observability/sentry';
+import { createCorsOptions } from './security/cors';
+import { createErrorHandler } from './security/errorHandler';
+import { 
+  validateRequest, 
+  webinarRegistrationSchema, 
+  communityPostSchema, 
+  commentSchema, 
+  idParamSchema, 
+  choiceIndexSchema, 
+  enrollmentSchema,
+  profileUpdateSchema 
+} from './security/validation';
 
 // Initialize observability (safe no-op if not configured)
 bootOtel();
 
 import Fastify from 'fastify';
-import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
+import rateLimit from '@fastify/rate-limit';
+import requestId from '@fastify/request-id';
 import { listTerms, getTerm } from './lexicon';
 import { listOrgs, getOrg } from './directory';
 import { getProfile, updateProfile } from './profiles';
@@ -24,12 +38,45 @@ import { listCredentials, addCredential, updateCredential, deleteCredential, get
 import { getFlags, setFlags, getUserSettings, setUserSettings } from './admin';
 import { getAppSettings, setAppSettings, getPublicAppSettings } from './appSettings';
 
-const app = Fastify();
+const app = Fastify({
+  bodyLimit: Number(process.env.BODY_LIMIT_BYTES || 1048576), // 1MB default
+  logger: process.env.NODE_ENV === 'development'
+});
 
 // Register Sentry plugin early (safe no-op if not configured)
 await app.register(sentryPlugin);
 
-await app.register(cors, { origin: true });
+// Security plugins
+await app.register(requestId);
+await app.register(helmet, {
+  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false
+});
+
+// CORS with allowlist
+await app.register(import('@fastify/cors'), createCorsOptions());
+
+// Global rate limiting
+await app.register(rateLimit, {
+  max: Number(process.env.RATE_LIMIT_GLOBAL_PER_MIN || 120),
+  timeWindow: '1 minute',
+  errorResponseBuilder: (request, context) => ({
+    error: 'Rate limit exceeded',
+    requestId: request.headers['x-request-id'],
+    retryAfter: Math.round(context.ttl / 1000)
+  })
+});
+
+// Error handler
+app.setErrorHandler(createErrorHandler());
+
+// Add request ID to all responses
+app.addHook('onSend', async (request, reply, payload) => {
+  const requestId = request.headers['x-request-id'] as string;
+  if (requestId) {
+    reply.header('x-request-id', requestId);
+  }
+  return payload;
+});
 
 app.get('/health', async () => ({ status: 'ok' }));
 
@@ -88,12 +135,34 @@ app.get('/profiles/me', async (req, reply) => {
 
 app.patch('/profiles/me', async (req, reply) => {
   const userId = (req.headers['x-user-id'] as string) || 'u1';
-  const patch = req.body as any;
+  
+  // Validate request body
+  const validation = validateRequest(profileUpdateSchema, req.body);
+  if (!validation.success) {
+    return reply.status(400).send({ 
+      error: validation.error,
+      requestId: req.headers['x-request-id']
+    });
+  }
+  
+  const patch = validation.data;
   
   const updatedProfile = await updateProfile(userId, patch);
-  if (!updatedProfile) return reply.code(404).send({ error: 'not_found' });
+  if (!updatedProfile) {
+    return reply.status(404).send({ 
+      error: 'not_found',
+      requestId: req.headers['x-request-id']
+    });
+  }
   
   return updatedProfile;
+}, {
+  config: {
+    rateLimit: {
+      max: Number(process.env.RATE_LIMIT_MUTATING_PER_MIN || 30),
+      timeWindow: '1 minute'
+    }
+  }
 });
 
 // Webinars routes
@@ -111,16 +180,34 @@ app.get('/webinars/:id', async (req, reply) => {
 
 app.post('/webinars/:id/register', async (req, reply) => {
   const { id } = req.params as any;
-  const { name, email } = req.body as any;
   
-  if (!name || !email) {
-    return reply.code(400).send({ error: 'name and email are required' });
+  // Validate request body
+  const validation = validateRequest(webinarRegistrationSchema, req.body);
+  if (!validation.success) {
+    return reply.status(400).send({ 
+      error: validation.error,
+      requestId: req.headers['x-request-id']
+    });
   }
   
+  const { name, email } = validation.data;
+  
   const registration = await registerForWebinar(id, { name, email });
-  if (!registration) return reply.code(404).send({ error: 'webinar_not_found' });
+  if (!registration) {
+    return reply.status(404).send({ 
+      error: 'webinar_not_found',
+      requestId: req.headers['x-request-id']
+    });
+  }
   
   return registration;
+}, {
+  config: {
+    rateLimit: {
+      max: Number(process.env.RATE_LIMIT_MUTATING_PER_MIN || 30),
+      timeWindow: '1 minute'
+    }
+  }
 });
 
 // Webhook routes
@@ -148,21 +235,36 @@ app.get('/community/posts/:id', async (req, reply) => {
 });
 
 app.post('/community/posts', async (req, reply) => {
-  const { title, body, tags } = req.body as any;
-  const authorId = (req.headers['x-user-id'] as string) || 'u1';
-  
-  if (!title || !body) {
-    return reply.code(400).send({ error: 'title and body are required' });
+  // Validate request body
+  const validation = validateRequest(communityPostSchema, req.body);
+  if (!validation.success) {
+    return reply.status(400).send({ 
+      error: validation.error,
+      requestId: req.headers['x-request-id']
+    });
   }
+  
+  const { title, body, tags } = validation.data;
+  const authorId = (req.headers['x-user-id'] as string) || 'u1';
   
   try {
     const post = await createPost({ authorId, title, body, tags });
-    return reply.code(201).send(post);
+    return reply.status(201).send(post);
   } catch (error) {
     if (error instanceof Error && (error.message === 'Title is required' || error.message === 'Body is required')) {
-      return reply.code(400).send({ error: error.message });
+      return reply.status(400).send({ 
+        error: error.message,
+        requestId: req.headers['x-request-id']
+      });
     }
     throw error;
+  }
+}, {
+  config: {
+    rateLimit: {
+      max: Number(process.env.RATE_LIMIT_MUTATING_PER_MIN || 30),
+      timeWindow: '1 minute'
+    }
   }
 });
 
@@ -179,24 +281,43 @@ app.get('/community/posts/:id/comments', async (req, reply) => {
 
 app.post('/community/posts/:id/comments', async (req, reply) => {
   const { id } = req.params as any;
-  const { text } = req.body as any;
-  const authorId = (req.headers['x-user-id'] as string) || 'u1';
   
-  if (!text || typeof text !== 'string') {
-    return reply.code(400).send({ error: 'text is required' });
+  // Validate request body
+  const validation = validateRequest(commentSchema, req.body);
+  if (!validation.success) {
+    return reply.status(400).send({ 
+      error: validation.error,
+      requestId: req.headers['x-request-id']
+    });
   }
+  
+  const { text } = validation.data;
+  const authorId = (req.headers['x-user-id'] as string) || 'u1';
   
   try {
     const comment = await addComment({ postId: id, authorId, text });
-    return reply.code(201).send(comment);
+    return reply.status(201).send(comment);
   } catch (error) {
     if (error instanceof Error && error.message === 'Post not found') {
-      return reply.code(404).send({ error: 'post_not_found' });
+      return reply.status(404).send({ 
+        error: 'post_not_found',
+        requestId: req.headers['x-request-id']
+      });
     }
     if (error instanceof Error && error.message === 'Comment text cannot be empty') {
-      return reply.code(400).send({ error: 'text_cannot_be_empty' });
+      return reply.status(400).send({ 
+        error: 'text_cannot_be_empty',
+        requestId: req.headers['x-request-id']
+      });
     }
     throw error;
+  }
+}, {
+  config: {
+    rateLimit: {
+      max: Number(process.env.RATE_LIMIT_MUTATING_PER_MIN || 30),
+      timeWindow: '1 minute'
+    }
   }
 });
 
@@ -244,12 +365,18 @@ app.get('/trainings/:id', async (req, reply) => {
 
 app.post('/trainings/:id/enroll', async (req, reply) => {
   const { id } = req.params as any;
-  const { name, email } = req.body as any;
-  const userId = (req.headers['x-user-id'] as string) || 'u1';
   
-  if (!name || !email) {
-    return reply.code(400).send({ error: 'name and email are required' });
+  // Validate request body
+  const validation = validateRequest(enrollmentSchema, req.body);
+  if (!validation.success) {
+    return reply.status(400).send({ 
+      error: validation.error,
+      requestId: req.headers['x-request-id']
+    });
   }
+  
+  const { name, email } = validation.data;
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
   
   const enrollment = await enroll({
     userId,
@@ -258,9 +385,21 @@ app.post('/trainings/:id/enroll', async (req, reply) => {
     email
   });
   
-  if (!enrollment) return reply.code(404).send({ error: 'training_not_found' });
+  if (!enrollment) {
+    return reply.status(404).send({ 
+      error: 'training_not_found',
+      requestId: req.headers['x-request-id']
+    });
+  }
   
-  return reply.code(201).send(enrollment);
+  return reply.status(201).send(enrollment);
+}, {
+  config: {
+    rateLimit: {
+      max: Number(process.env.RATE_LIMIT_MUTATING_PER_MIN || 30),
+      timeWindow: '1 minute'
+    }
+  }
 });
 
 app.post('/trainings/:id/progress', async (req, reply) => {
@@ -560,12 +699,18 @@ app.get('/quiz/:id/my-response', async (req, reply) => {
 
 app.post('/quiz/:id/answer', async (req, reply) => {
   const { id } = req.params as any;
-  const { choiceIndex } = req.body as any;
-  const userId = (req.headers['x-user-id'] as string) || 'u1';
   
-  if (typeof choiceIndex !== 'number') {
-    return reply.code(400).send({ error: 'choiceIndex must be a number' });
+  // Validate request body
+  const validation = validateRequest(choiceIndexSchema, req.body);
+  if (!validation.success) {
+    return reply.status(400).send({ 
+      error: validation.error,
+      requestId: req.headers['x-request-id']
+    });
   }
+  
+  const { choiceIndex } = validation.data;
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
   
   try {
     const result = await submitResponse({
@@ -575,21 +720,37 @@ app.post('/quiz/:id/answer', async (req, reply) => {
     });
     
     if (!result) {
-      return reply.code(404).send({ error: 'quiz_not_found' });
+      return reply.status(404).send({ 
+        error: 'quiz_not_found',
+        requestId: req.headers['x-request-id']
+      });
     }
     
-    return reply.code(201).send({
+    return reply.status(201).send({
       correct: result.isCorrect,
       response: result.response
     });
   } catch (error) {
     if (error instanceof Error && error.message === 'You have already answered this quiz') {
-      return reply.code(409).send({ error: 'already_answered' });
+      return reply.status(409).send({ 
+        error: 'already_answered',
+        requestId: req.headers['x-request-id']
+      });
     }
     if (error instanceof Error && error.message === 'Invalid choice index') {
-      return reply.code(400).send({ error: 'invalid_choice_index' });
+      return reply.status(400).send({ 
+        error: 'invalid_choice_index',
+        requestId: req.headers['x-request-id']
+      });
     }
     throw error;
+  }
+}, {
+  config: {
+    rateLimit: {
+      max: Number(process.env.RATE_LIMIT_MUTATING_PER_MIN || 30),
+      timeWindow: '1 minute'
+    }
   }
 });
 
