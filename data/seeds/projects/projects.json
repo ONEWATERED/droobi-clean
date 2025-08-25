@@ -1,0 +1,42 @@
+[
+  {
+    "id": "p1",
+    "title": "Lift Station Upgrades – Phase 2",
+    "source": "SAM.gov",
+    "status": "open",
+    "publishedAt": "2025-09-01T12:00:00Z",
+    "dueAt": "2025-10-01T21:00:00Z",
+    "buyer": "City of Example",
+    "category": "Wastewater",
+    "region": "US-SE",
+    "summary": "Pump replacements, controls, SCADA integration.",
+    "url": "https://sam.example.gov/opportunity/12345",
+    "attachments": [{"name": "Scope.pdf", "url": "https://example.com/scope.pdf"}]
+  },
+  {
+    "id": "p2",
+    "title": "PFAS Treatment Pilot",
+    "source": "State Portal",
+    "status": "open",
+    "publishedAt": "2025-09-05T15:00:00Z",
+    "dueAt": "2025-09-25T22:00:00Z",
+    "buyer": "State DEP",
+    "category": "Drinking Water",
+    "region": "US-NE",
+    "summary": "Bench- and pilot-scale GAC/IX evaluation.",
+    "url": "https://state.example.gov/rfp/987"
+  },
+  {
+    "id": "p3",
+    "title": "Canal Dredging & Debris Removal",
+    "source": "County Portal",
+    "status": "planned",
+    "publishedAt": "2025-08-29T16:00:00Z",
+    "dueAt": "",
+    "buyer": "Example County",
+    "category": "Stormwater",
+    "region": "US-SE",
+    "summary": "Sediment removal and shoreline stabilization.",
+    "url": "https://county.example.gov/bids/555"
+  }
+]

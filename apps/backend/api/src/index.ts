@@ -6,6 +6,8 @@ import { getProfile, updateProfile } from './profiles';
 import { listWebinars, getWebinar, registerForWebinar, logWebhookPayload } from './webinars';
 import { listVideos, getVideo, createVideo } from './videos';
 import { listTrainings, getTraining, enroll, setProgress, getProgress } from './trainings';
+import { listProjects, getProject, saveProject, listSaved } from './projects';
+import { createBidRoom, getBidRoom, listBidRooms, addArtifact, addTask, inviteMember, getRoomArtifacts, getRoomTasks } from './bidrooms';
 
 const app = Fastify();
 await app.register(cors, { origin: true });
@@ -191,6 +193,105 @@ app.get('/trainings/:id/progress', async (req, reply) => {
   });
   
   return progress;
+});
+
+// Projects routes
+app.get('/projects', async (req) => {
+  const filters = req.query as any;
+  return listProjects(filters);
+});
+
+app.get('/projects/:id', async (req, reply) => {
+  const { id } = req.params as any;
+  const project = await getProject(id);
+  if (!project) return reply.code(404).send({ error: 'not_found' });
+  return project;
+});
+
+app.post('/projects/:id/save', async (req, reply) => {
+  const { id } = req.params as any;
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  
+  const result = await saveProject({ userId, projectId: id });
+  
+  return reply.code(result.isNew ? 201 : 200).send(result.saved);
+});
+
+app.get('/me/saved-projects', async (req) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  return listSaved(userId);
+});
+
+// Bid Rooms routes
+app.post('/bid-rooms', async (req, reply) => {
+  const { projectId, name } = req.body as any;
+  const ownerId = (req.headers['x-user-id'] as string) || 'u1';
+  
+  if (!projectId || !name) {
+    return reply.code(400).send({ error: 'projectId and name are required' });
+  }
+  
+  const bidRoom = await createBidRoom({ projectId, name, ownerId });
+  return reply.code(201).send(bidRoom);
+});
+
+app.get('/bid-rooms', async (req) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  return listBidRooms(userId);
+});
+
+app.get('/bid-rooms/:id', async (req, reply) => {
+  const { id } = req.params as any;
+  const bidRoom = await getBidRoom(id);
+  if (!bidRoom) return reply.code(404).send({ error: 'not_found' });
+  
+  // Include artifacts and tasks
+  const artifacts = await getRoomArtifacts(id);
+  const tasks = await getRoomTasks(id);
+  
+  return {
+    ...bidRoom,
+    artifacts,
+    tasks
+  };
+});
+
+app.post('/bid-rooms/:id/artifacts', async (req, reply) => {
+  const { id } = req.params as any;
+  const { name, url } = req.body as any;
+  
+  if (!name) {
+    return reply.code(400).send({ error: 'name is required' });
+  }
+  
+  const artifact = await addArtifact({ roomId: id, name, url });
+  return reply.code(201).send(artifact);
+});
+
+app.post('/bid-rooms/:id/tasks', async (req, reply) => {
+  const { id } = req.params as any;
+  const { title, assignee, dueAt } = req.body as any;
+  
+  if (!title) {
+    return reply.code(400).send({ error: 'title is required' });
+  }
+  
+  const task = await addTask({ roomId: id, title, assignee, dueAt });
+  return reply.code(201).send(task);
+});
+
+app.post('/bid-rooms/:id/invite', async (req, reply) => {
+  const { id } = req.params as any;
+  const { userId, email } = req.body as any;
+  
+  if (!userId && !email) {
+    return reply.code(400).send({ error: 'userId or email is required' });
+  }
+  
+  const room = await inviteMember({ roomId: id, userId, email });
+  if (!room) return reply.code(404).send({ error: 'room_not_found' });
+  
+  return room;
 });
 
 const port = Number(process.env.PORT || 3001);
