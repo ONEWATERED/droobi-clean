@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import { listTerms, getTerm } from './lexicon';
 import { listOrgs, getOrg } from './directory';
 import { getProfile, updateProfile } from './profiles';
+import { listWebinars, getWebinar, registerForWebinar, logWebhookPayload } from './webinars';
 
 const app = Fastify();
 await app.register(cors, { origin: true });
@@ -56,6 +57,44 @@ app.patch('/profiles/me', async (req, reply) => {
   if (!updatedProfile) return reply.code(404).send({ error: 'not_found' });
   
   return updatedProfile;
+});
+
+// Webinars routes
+app.get('/webinars', async (req) => {
+  const filters = req.query as any;
+  return listWebinars(filters);
+});
+
+app.get('/webinars/:id', async (req, reply) => {
+  const { id } = req.params as any;
+  const webinar = await getWebinar(id);
+  if (!webinar) return reply.code(404).send({ error: 'not_found' });
+  return webinar;
+});
+
+app.post('/webinars/:id/register', async (req, reply) => {
+  const { id } = req.params as any;
+  const { name, email } = req.body as any;
+  
+  if (!name || !email) {
+    return reply.code(400).send({ error: 'name and email are required' });
+  }
+  
+  const registration = await registerForWebinar(id, { name, email });
+  if (!registration) return reply.code(404).send({ error: 'webinar_not_found' });
+  
+  return registration;
+});
+
+// Webhook routes
+app.post('/webhooks/zoom', async (req, reply) => {
+  await logWebhookPayload('zoom', req.body);
+  return { status: 'received' };
+});
+
+app.post('/webhooks/meet', async (req, reply) => {
+  await logWebhookPayload('meet', req.body);
+  return { status: 'received' };
 });
 
 const port = Number(process.env.PORT || 3001);

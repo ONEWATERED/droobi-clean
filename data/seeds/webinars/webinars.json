@@ -1,0 +1,29 @@
+[
+  {
+    "id": "w1",
+    "title": "AI for One Water – Kickoff",
+    "startsAt": "2025-09-10T15:00:00Z",
+    "durationMin": 60,
+    "host": "Droobi",
+    "platform": "zoom",
+    "description": "Overview + live Q&A"
+  },
+  {
+    "id": "w2",
+    "title": "Permitting Agents 101",
+    "startsAt": "2025-09-17T16:00:00Z",
+    "durationMin": 45,
+    "host": "Droobi",
+    "platform": "meet",
+    "description": "Hands-on demo"
+  },
+  {
+    "id": "w3",
+    "title": "SCADA Integration Workshop",
+    "startsAt": "2025-09-24T14:00:00Z",
+    "durationMin": 90,
+    "host": "Droobi",
+    "platform": "zoom",
+    "description": "Deep dive into SCADA system integration with modern AI tools"
+  }
+]

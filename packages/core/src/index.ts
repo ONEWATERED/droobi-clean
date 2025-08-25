@@ -3,6 +3,7 @@ export interface FeatureFlags {
   directory: boolean;
   microsites: boolean;
   profiles: boolean;
+  webinars: boolean;
 }
 
 export const featureFlags: FeatureFlags = {
@@ -10,6 +11,7 @@ export const featureFlags: FeatureFlags = {
   directory: true,
   microsites: false,
   profiles: true,
+  webinars: false,
 };
 
 export interface ModuleRegistryItem {
@@ -43,5 +45,11 @@ export const modulesRegistry: ModuleRegistryItem[] = [
     title: 'Profiles',
     description: 'User profile and portfolio management',
     path: '/profiles',
+  },
+  {
+    key: 'webinars',
+    title: 'Events',
+    description: 'Webinars and educational workshops',
+    path: '/events',
   },
 ];
