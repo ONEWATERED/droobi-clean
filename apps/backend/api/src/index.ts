@@ -12,6 +12,7 @@ import {
   enrollmentSchema,
   profileUpdateSchema 
 } from './security/validation';
+import { getAdminStatus, checkReadiness } from './adminStatus';
 
 // Initialize observability (safe no-op if not configured)
 bootOtel();
@@ -76,6 +77,45 @@ app.addHook('onSend', async (request, reply, payload) => {
     reply.header('x-request-id', requestId);
   }
   return payload;
+});
+
+// Version endpoint
+app.get('/version', async () => {
+  let version = '1.0.0';
+  try {
+    const packagePath = resolve(__dirname, '../../../package.json');
+    if (existsSync(packagePath)) {
+      const packageRaw = await readFile(packagePath, 'utf-8');
+      const packageInfo = JSON.parse(packageRaw);
+      version = packageInfo.version || '1.0.0';
+    }
+  } catch (error) {
+    // Use default
+  }
+  
+  return {
+    service: 'droobi-api',
+    version,
+    sha: process.env.GITHUB_SHA || '',
+    node: process.version
+  };
+});
+
+// Readiness endpoint
+app.get('/ready', async (request, reply) => {
+  const ready = await checkReadiness();
+  if (!ready) {
+    return reply.status(503).send({
+      error: 'Service not ready',
+      requestId: request.headers['x-request-id']
+    });
+  }
+  return { status: 'ready' };
+});
+
+// Admin status endpoint
+app.get('/admin/status', async () => {
+  return getAdminStatus();
 });
 
 app.get('/health', async () => ({ status: 'ok' }));

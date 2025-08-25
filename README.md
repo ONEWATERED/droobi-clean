@@ -197,9 +197,111 @@ To enable PR previews, add the following repository secrets:
 
 **Note**: If secrets aren't configured, the workflow will gracefully exit and post setup instructions instead of failing.
 
+## Production Deployments
+
+Production deployments are triggered automatically when you push a git tag starting with `v` (e.g., `v1.0.0`, `v2.1.3`).
+
+### Setup
+
+To enable production deployments, add the following repository secrets:
+
+**Go to Settings → Secrets and variables → Actions and add:**
+
+**Required:**
+- `GCP_PROJECT_ID` - Your Google Cloud Project ID
+- `GCP_REGION` - Production deployment region (e.g., `us-central1`)
+- `GCP_SA_KEY` - Service Account JSON key with required roles
+
+**Optional (for observability):**
+- `SENTRY_DSN_API` - Sentry DSN for API error monitoring
+- `SENTRY_DSN_WEB` - Sentry DSN for web error monitoring
+- `OTEL_EXPORTER_OTLP_ENDPOINT` - OpenTelemetry traces endpoint
+- `OTEL_EXPORTER_OTLP_HEADERS` - OpenTelemetry authentication headers
+
+### Service Account Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Navigate to IAM & Admin → Service Accounts
+3. Create a new service account or use existing
+4. Add the following roles:
+   - `roles/run.admin` - Deploy and manage Cloud Run services
+   - `roles/iam.serviceAccountUser` - Use service accounts
+   - `roles/artifactregistry.writer` - Push container images
+5. Generate a JSON key and add it as the `GCP_SA_KEY` secret
+
+### How to Deploy
+
+1. **Tag Release**: Create and push a version tag:
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+2. **Manual Deploy**: Use GitHub Actions workflow dispatch:
+   - Go to Actions → Production Release
+   - Click "Run workflow"
+   - Enter the tag name (e.g., `v1.0.0`)
+
+### Production Environment Details
+
+- **API Service**: `droobi-api` (stable production name)
+- **Web Service**: `droobi-web` (stable production name)
+- **Configuration**: Production environment with full feature set
+- **Scaling**: Min 1 instance (always warm), max 10 instances
+- **Resources**: 1 CPU, 1GB RAM per service
+- **Access**: Public (configure authentication as needed)
+- **Monitoring**: Full observability stack when configured
+
+### Deployment Features
+
+- **Zero Downtime**: Rolling deployments with health checks
+- **Auto Scaling**: Scales from 1-10 instances based on traffic
+- **Always Warm**: Min 1 instance prevents cold starts
+- **Environment Isolation**: Production data namespace
+- **Feature Flags**: Remote flags enabled for dynamic configuration
+- **Observability**: Full Sentry and OpenTelemetry integration
+- **URL Notification**: Deployment URLs posted as commit comments
+
+**Note**: If secrets aren't configured, the workflow will gracefully exit and post setup instructions instead of failing.
+
 ## License
 
 Private repository - all rights reserved.
+
+## Admin Status
+
+The platform includes a comprehensive admin status dashboard for monitoring system health and metrics.
+
+### Accessing Admin Status
+
+To access the admin status dashboard:
+
+1. Set `NEXT_PUBLIC_ADMIN_MODE=1` in your environment
+2. Navigate to `/admin/status`
+
+### Features
+
+The admin status page displays:
+
+- **API Health**: Service status, uptime, environment, and readiness checks
+- **Build Information**: Version numbers and commit SHAs for both web and API
+- **Feature Flags**: Currently enabled/disabled platform features
+- **Content Metrics**: Data counts across all modules (lexicon, directory, projects, etc.)
+- **Auto-refresh**: Optional 10-second auto-refresh for real-time monitoring
+- **JSON Export**: Copy complete status data as JSON for external monitoring
+
+### API Endpoints
+
+The following endpoints support the admin dashboard:
+
+- `GET /version` - API version and build information
+- `GET /ready` - Readiness check (200 if ready, 503 if not)
+- `GET /admin/status` - Comprehensive status including health, flags, and counts
+- `GET /api/version` - Web application version information
+
+### Monitoring Integration
+
+When Sentry is configured, the status page includes a direct link to your Sentry project for error monitoring and performance insights.
 
 ## PR Previews (Cloud Run)
 

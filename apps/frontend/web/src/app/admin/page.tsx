@@ -59,6 +59,52 @@ export default function AdminPage() {
               </CardContent>
             </Card>
 
+            {/* System Status */}
+            <Card className="group hover:shadow-lg transition-all duration-200">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Settings className="mr-2 h-5 w-5 text-primary" />
+                  System Status
+                </CardTitle>
+                <CardDescription>
+                  Monitor API health, builds, and content metrics
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="pt-3">
+                  <Link href="/admin/status">
+                    <Button className="w-full" variant="outline">
+                      <Activity className="mr-2 h-4 w-4" />
+                      View Status
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* App Settings */}
+            <Card className="group hover:shadow-lg transition-all duration-200">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Settings className="mr-2 h-5 w-5 text-primary" />
+                  App Settings
+                </CardTitle>
+                <CardDescription>
+                  Configure branding, contact info, and site-wide settings
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="pt-3">
+                  <Link href="/admin/app-settings">
+                    <Button className="w-full">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Manage App Settings
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* User Settings */}
             <Card className="group hover:shadow-lg transition-all duration-200">
               <CardHeader>
