@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@repo/core'],
+  transpilePackages: ['@repo/core', 'tailwindcss'],
   output: 'export',
   eslint: {
     ignoreDuringBuilds: true,
