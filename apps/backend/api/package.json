@@ -14,16 +14,29 @@
   "dependencies": {
     "@repo/core": "workspace:*",
     "fastify": "^4.24.3",
-    "@fastify/cors": "^8.4.0"
+    "@fastify/cors": "^8.4.0",
+    "@fastify/helmet": "^11.1.1",
+    "@fastify/rate-limit": "^9.1.0",
+    "@fastify/request-id": "^3.0.0",
+    "@sentry/node": "^7.118.0",
+    "@opentelemetry/sdk-node": "^0.45.1",
+    "@opentelemetry/auto-instrumentations-node": "^0.40.3",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.45.1",
+    "@opentelemetry/resources": "^1.18.1",
+    "@opentelemetry/semantic-conventions": "^1.18.1",
+    "zod": "^3.22.4",
+    "sanitize-html": "^2.11.0"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/node": "^20.10.0",
+    "@types/sanitize-html": "^2.9.5",
     "eslint": "^8.54.0",
     "typescript": "^5.3.2",
     "@types/jest": "^29.5.8",
     "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
     "tsx": "^4.6.2"
   }
 }

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Settings, Flag, User } from 'lucide-react';
+import { Settings, Flag, User, Activity } from 'lucide-react';
 
 export default function AdminPage() {
   const isAdminMode = process.env.NEXT_PUBLIC_ADMIN_MODE === '1';
@@ -120,7 +120,7 @@ export default function AdminPage() {
                 <div className="pt-3">
                   <Link href="/settings">
                     <Button className="w-full" variant="outline">
-                      <Settings className="mr-2 h-4 w-4" />
+                      <User className="mr-2 h-4 w-4" />
                       My Settings
                     </Button>
                   </Link>
@@ -144,38 +144,11 @@ export default function AdminPage() {
                     System Health
                   </Button>
                 </Link>
-                    <User className="mr-2 h-4 w-4" />
+               </div>
             </div>
           </div>
         </div>
-          {/* App Settings */}
-          <Card className="group hover:shadow-lg transition-all duration-200">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Settings className="mr-2 h-5 w-5 text-primary" />
-                App Settings
-              </CardTitle>
-              <CardDescription>
-                Configure branding, contact info, and site-wide settings
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="pt-3">
-                <Link href="/admin/app-settings">
-                  <Button className="w-full">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Manage App Settings
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-
       </div>
     </div>
   );
-}
-  )
-}
-  )
 }
