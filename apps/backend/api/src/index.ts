@@ -14,6 +14,7 @@ import { listNotifications, markRead, createNotification } from './inbox';
 import { getPoints, addPoints, listLeaderboard, listBadges, listMyBadges, logEvent } from './gamification';
 import { getTodayQuiz, getQuizById, submitResponse, getMyResponse, getStats, getHistory } from './quiz';
 import { getToday as getTodayWaterMinute, getById as getWaterMinuteById, listHistory as getWaterMinuteHistory } from './waterMinute';
+import { listCredentials, addCredential, updateCredential, deleteCredential, getResume, setResume, getCard, setCard } from './credentials';
 
 const app = Fastify();
 await app.register(cors, { origin: true });
@@ -598,6 +599,74 @@ app.get('/water-minute/:id', async (req, reply) => {
   const minute = await getWaterMinuteById(id);
   if (!minute) return reply.code(404).send({ error: 'minute_not_found' });
   return minute;
+});
+
+// Credentials routes
+app.get('/credentials', async (req) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  return listCredentials(userId);
+});
+
+app.post('/credentials', async (req, reply) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  const data = req.body as any;
+  
+  try {
+    const credential = await addCredential(userId, data);
+    return reply.code(201).send(credential);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Name is required') {
+      return reply.code(400).send({ error: error.message });
+    }
+    throw error;
+  }
+});
+
+app.patch('/credentials/:id', async (req, reply) => {
+  const { id } = req.params as any;
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  const patch = req.body as any;
+  
+  const credential = await updateCredential(userId, id, patch);
+  if (!credential) return reply.code(404).send({ error: 'credential_not_found' });
+  
+  return credential;
+});
+
+app.delete('/credentials/:id', async (req, reply) => {
+  const { id } = req.params as any;
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  
+  const success = await deleteCredential(userId, id);
+  if (!success) return reply.code(404).send({ error: 'credential_not_found' });
+  
+  return reply.code(204).send();
+});
+
+app.get('/me/resume', async (req) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  return getResume(userId);
+});
+
+app.put('/me/resume', async (req, reply) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  const data = req.body as any;
+  
+  const resume = await setResume(userId, data);
+  return resume;
+});
+
+app.get('/me/card', async (req) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  return getCard(userId);
+});
+
+app.put('/me/card', async (req, reply) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  const patch = req.body as any;
+  
+  const card = await setCard(userId, patch);
+  return card;
 });
 
 const port = Number(process.env.PORT || 3001);

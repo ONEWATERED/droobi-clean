@@ -13,6 +13,7 @@ export interface FeatureFlags {
   gamification: boolean;
   quiz: boolean;
   waterMinute: boolean;
+  credentials: boolean;
 }
 
 export const featureFlags: FeatureFlags = {
@@ -30,6 +31,7 @@ export const featureFlags: FeatureFlags = {
   gamification: false,
   quiz: false,
   waterMinute: false,
+  credentials: false,
 };
 
 export interface ModuleRegistryItem {
@@ -123,5 +125,11 @@ export const modulesRegistry: ModuleRegistryItem[] = [
     title: 'Water Minute',
     description: 'Daily 60-second insights on water technology and trends',
     path: '/water-minute',
+  },
+  {
+    key: 'credentials',
+    title: 'Credentials',
+    description: 'Professional licenses, certifications, and resume management',
+    path: '/credentials',
   },
 ];
