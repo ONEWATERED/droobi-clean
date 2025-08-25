@@ -1,3 +1,9 @@
+import { bootOtel } from './observability/otel';
+import { sentryPlugin } from './observability/sentry';
+
+// Initialize observability (safe no-op if not configured)
+bootOtel();
+
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { listTerms, getTerm } from './lexicon';
@@ -19,9 +25,27 @@ import { getFlags, setFlags, getUserSettings, setUserSettings } from './admin';
 import { getAppSettings, setAppSettings, getPublicAppSettings } from './appSettings';
 
 const app = Fastify();
+
+// Register Sentry plugin early (safe no-op if not configured)
+await app.register(sentryPlugin);
+
 await app.register(cors, { origin: true });
 
 app.get('/health', async () => ({ status: 'ok' }));
+
+// Debug error route for testing error capture
+app.get('/debug-error', async (request, reply) => {
+  const { boom } = request.query as any;
+  
+  if (boom === '1') {
+    throw new Error('Debug error triggered for testing error capture');
+  }
+  
+  return { 
+    message: 'Add ?boom=1 to trigger a test error',
+    requestId: request.headers['x-request-id']
+  };
+});
 
 app.get('/lexicon/terms', async (req) => {
   const q = (req.query as any)?.search as string | undefined;

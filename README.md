@@ -111,6 +111,49 @@ The monorepo is designed for flexible deployment:
 3. Ensure all CI checks pass
 4. Submit a pull request
 
+## Observability
+
+The platform includes optional monitoring and observability features:
+
+### Sentry Error Monitoring
+
+To enable Sentry error tracking, set these environment variables:
+
+```bash
+SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
+SENTRY_ENVIRONMENT=development
+SENTRY_TRACES_SAMPLE_RATE=0.2
+```
+
+When configured, Sentry will:
+- Capture unhandled errors and exceptions
+- Monitor performance with 20% sampling
+- Track web vitals (CLS, FID, LCP, etc.)
+- Provide request tracing and context
+
+Test error capture by visiting `/debug-error?boom=1`.
+
+### OpenTelemetry Distributed Tracing
+
+To enable OpenTelemetry tracing for the backend API, set:
+
+```bash
+OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp.your-observer.com/v1/traces
+OTEL_EXPORTER_OTLP_HEADERS=api-key=your-api-key
+OTEL_SERVICE_NAME_API=droobi-api
+```
+
+When configured, OpenTelemetry will:
+- Auto-instrument HTTP requests, database calls, and external services
+- Export traces to your OTLP-compatible backend (Jaeger, Zipkin, etc.)
+- Provide distributed tracing across services
+
+Test the backend instrumentation by visiting `/debug-error?boom=1`.
+
+### Disabling Observability
+
+When environment variables are unset, all observability features are disabled and will not impact performance or functionality.
+
 ## License
 
 Private repository - all rights reserved.

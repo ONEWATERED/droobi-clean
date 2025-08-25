@@ -1,9 +1,15 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
-import Link from 'next/link';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { getEffectiveSettings } from '@/lib/settings';
+import { initWebVitals } from '@/lib/web-vitals';
+import Link from 'next/link';
+
+// Initialize web vitals on client side
+if (typeof window !== 'undefined') {
+  initWebVitals();
+}
 import Link from 'next/link';
 
 const inter = Inter({ subsets: ['latin'] });
