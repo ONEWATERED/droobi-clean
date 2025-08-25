@@ -7,17 +7,6 @@ const featureFlags = {
   directory: true,
   microsites: false,
   profiles: true,
-  webinars: false,
-  tv: false,
-  trainings: false,
-  projects: true,
-  lounge: false,
-  community: false,
-  inbox: false,
-  gamification: false,
-  quiz: false,
-  waterMinute: false,
-  credentials: false,
 };
 
 const modulesRegistry = [
@@ -44,72 +33,6 @@ const modulesRegistry = [
     title: 'Profiles',
     description: 'User profile and portfolio management',
     path: '/profiles',
-  },
-  {
-    key: 'webinars',
-    title: 'Events',
-    description: 'Webinars and educational workshops',
-    path: '/events',
-  },
-  {
-    key: 'tv',
-    title: 'TV',
-    description: 'Educational videos and content library',
-    path: '/tv',
-  },
-  {
-    key: 'trainings',
-    title: 'Trainings',
-    description: 'Structured learning courses and progress tracking',
-    path: '/trainings',
-  },
-  {
-    key: 'projects',
-    title: 'Projects',
-    description: 'RFP opportunities and collaborative bid rooms',
-    path: '/projects',
-  },
-  {
-    key: 'lounge',
-    title: 'Lounge',
-    description: 'Community chat rooms and real-time discussions',
-    path: '/lounge',
-  },
-  {
-    key: 'community',
-    title: 'Community',
-    description: 'Discussion posts and knowledge sharing',
-    path: '/community',
-  },
-  {
-    key: 'inbox',
-    title: 'Inbox',
-    description: 'Notifications and activity updates',
-    path: '/inbox',
-  },
-  {
-    key: 'gamification',
-    title: 'Gamification',
-    description: 'Points, badges, and leaderboard system',
-    path: '/gamification',
-  },
-  {
-    key: 'quiz',
-    title: 'Quiz',
-    description: 'Daily knowledge questions and community stats',
-    path: '/quiz',
-  },
-  {
-    key: 'waterMinute',
-    title: 'Water Minute',
-    description: 'Daily 60-second insights on water technology and trends',
-    path: '/water-minute',
-  },
-  {
-    key: 'credentials',
-    title: 'Credentials',
-    description: 'Professional licenses, certifications, and resume management',
-    path: '/credentials',
   },
 ];
 
@@ -147,7 +70,7 @@ export default function HomePage() {
                   
                   {isEnabled ? (
                     <Link
-                      href={module.key === 'profiles' ? '/me' : module.path}
+                      href={module.path}
                       className="inline-flex items-center px-3 py-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                     >
                       Launch module
@@ -166,12 +89,9 @@ export default function HomePage() {
         </div>
 
         <div className="mt-12 text-center">
-          <Link 
-            href="/health"
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            System Health Check
-          </Link>
+          <p className="text-sm text-gray-500">
+            System Health: Online
+          </p>
         </div>
       </div>
     </div>
