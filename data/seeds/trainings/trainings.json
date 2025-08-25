@@ -1,0 +1,30 @@
+[
+  {
+    "id": "t1",
+    "title": "AI for One Water – Basics",
+    "level": "beginner",
+    "durationMin": 60,
+    "tags": ["ai","one-water"],
+    "publishedAt": "2025-09-12T15:00:00Z",
+    "description": "Foundations, use cases, and pitfalls.",
+    "lessons": [
+      {"id":"l1","title":"What is AI?","durationMin":10},
+      {"id":"l2","title":"Agent basics","durationMin":20},
+      {"id":"l3","title":"Utility examples","durationMin":30}
+    ]
+  },
+  {
+    "id": "t2",
+    "title": "Permitting Agents – Practitioner Track",
+    "level": "intermediate",
+    "durationMin": 90,
+    "tags": ["agents","permitting"],
+    "publishedAt": "2025-09-19T16:00:00Z",
+    "description": "Hands-on with workflows and QA.",
+    "lessons": [
+      {"id":"l1","title":"Reg frameworks","durationMin":25},
+      {"id":"l2","title":"Agent workflow design","durationMin":35},
+      {"id":"l3","title":"Failure modes & fixes","durationMin":30}
+    ]
+  }
+]

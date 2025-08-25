@@ -5,6 +5,7 @@ export interface FeatureFlags {
   profiles: boolean;
   webinars: boolean;
   tv: boolean;
+  trainings: boolean;
 }
 
 export const featureFlags: FeatureFlags = {
@@ -14,6 +15,7 @@ export const featureFlags: FeatureFlags = {
   profiles: true,
   webinars: false,
   tv: false,
+  trainings: false,
 };
 
 export interface ModuleRegistryItem {
@@ -59,5 +61,11 @@ export const modulesRegistry: ModuleRegistryItem[] = [
     title: 'TV',
     description: 'Educational videos and content library',
     path: '/tv',
+  },
+  {
+    key: 'trainings',
+    title: 'Trainings',
+    description: 'Structured learning courses and progress tracking',
+    path: '/trainings',
   },
 ];

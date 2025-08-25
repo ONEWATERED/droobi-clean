@@ -5,6 +5,7 @@ import { listOrgs, getOrg } from './directory';
 import { getProfile, updateProfile } from './profiles';
 import { listWebinars, getWebinar, registerForWebinar, logWebhookPayload } from './webinars';
 import { listVideos, getVideo, createVideo } from './videos';
+import { listTrainings, getTraining, enroll, setProgress, getProgress } from './trainings';
 
 const app = Fastify();
 await app.register(cors, { origin: true });
@@ -125,6 +126,71 @@ app.post('/videos', async (req, reply) => {
   
   const video = await createVideo(videoData);
   return reply.code(201).send(video);
+});
+
+// Trainings routes
+app.get('/trainings', async (req) => {
+  const filters = req.query as any;
+  return listTrainings(filters);
+});
+
+app.get('/trainings/:id', async (req, reply) => {
+  const { id } = req.params as any;
+  const training = await getTraining(id);
+  if (!training) return reply.code(404).send({ error: 'not_found' });
+  return training;
+});
+
+app.post('/trainings/:id/enroll', async (req, reply) => {
+  const { id } = req.params as any;
+  const { name, email } = req.body as any;
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  
+  if (!name || !email) {
+    return reply.code(400).send({ error: 'name and email are required' });
+  }
+  
+  const enrollment = await enroll({
+    userId,
+    trainingId: id,
+    name,
+    email
+  });
+  
+  if (!enrollment) return reply.code(404).send({ error: 'training_not_found' });
+  
+  return reply.code(201).send(enrollment);
+});
+
+app.post('/trainings/:id/progress', async (req, reply) => {
+  const { id } = req.params as any;
+  const { lessonId, status } = req.body as any;
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  
+  if (!lessonId || !status || !['complete', 'incomplete'].includes(status)) {
+    return reply.code(400).send({ error: 'lessonId and status (complete|incomplete) are required' });
+  }
+  
+  const progress = await setProgress({
+    userId,
+    trainingId: id,
+    lessonId,
+    status
+  });
+  
+  return progress;
+});
+
+app.get('/trainings/:id/progress', async (req, reply) => {
+  const { id } = req.params as any;
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  
+  const progress = await getProgress({
+    userId,
+    trainingId: id
+  });
+  
+  return progress;
 });
 
 const port = Number(process.env.PORT || 3001);
