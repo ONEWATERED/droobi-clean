@@ -16,6 +16,7 @@ import { getTodayQuiz, getQuizById, submitResponse, getMyResponse, getStats, get
 import { getToday as getTodayWaterMinute, getById as getWaterMinuteById, listHistory as getWaterMinuteHistory } from './waterMinute';
 import { listCredentials, addCredential, updateCredential, deleteCredential, getResume, setResume, getCard, setCard } from './credentials';
 import { getFlags, setFlags, getUserSettings, setUserSettings } from './admin';
+import { getAppSettings, setAppSettings, getPublicAppSettings } from './appSettings';
 
 const app = Fastify();
 await app.register(cors, { origin: true });
@@ -697,6 +698,26 @@ app.put('/me/settings', async (req, reply) => {
   const patch = req.body as any;
   
   const settings = await setUserSettings(userId, patch);
+  return settings;
+});
+
+// App settings routes
+app.get('/public/app-settings', async () => {
+  return getPublicAppSettings();
+});
+
+app.get('/admin/app-settings', async () => {
+  return getAppSettings();
+});
+
+app.put('/admin/app-settings', async (req, reply) => {
+  const isAdmin = req.headers['x-admin'] === '1';
+  if (!isAdmin) {
+    return reply.code(401).send({ error: 'admin_required' });
+  }
+  
+  const patch = req.body as any;
+  const settings = await setAppSettings(patch);
   return settings;
 });
 

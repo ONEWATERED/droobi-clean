@@ -1,0 +1,19 @@
+{
+  "brandName": "Droobi",
+  "brandTagline": "One Water. One Platform.",
+  "logoUrl": "",
+  "supportEmail": "support@example.com",
+  "privacyUrl": "",
+  "termsUrl": "",
+  "social": {
+    "x": "",
+    "linkedin": "",
+    "youtube": ""
+  },
+  "footerLinks": [
+    {"label":"About","href":"/about"},
+    {"label":"Privacy","href":"https://example.com/privacy"},
+    {"label":"Terms","href":"https://example.com/terms"}
+  ],
+  "aboutHtml": "<p>Droobi accelerates One Water collaboration: vendors, utilities, projects, and learning in one place.</p>"
+}
