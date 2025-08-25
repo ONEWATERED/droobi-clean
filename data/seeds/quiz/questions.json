@@ -1,0 +1,18 @@
+[
+  {
+    "id": "q1",
+    "date": "2025-09-01",
+    "question": "What does SCADA stand for?",
+    "options": ["Supervisory Control and Data Acquisition","System Control and Data Access","Secure Control and DAQ Analytics"],
+    "answerIndex": 0,
+    "explanation": "SCADA = Supervisory Control and Data Acquisition."
+  },
+  {
+    "id": "q2",
+    "date": "2025-09-02",
+    "question": "Which process removes dissolved ions from water?",
+    "options": ["Sedimentation","Ion exchange","Screening"],
+    "answerIndex": 1,
+    "explanation": "Ion exchange swaps ions in solution with ions on a resin."
+  }
+]

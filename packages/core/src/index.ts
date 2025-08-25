@@ -11,6 +11,7 @@ export interface FeatureFlags {
   community: boolean;
   inbox: boolean;
   gamification: boolean;
+  quiz: boolean;
 }
 
 export const featureFlags: FeatureFlags = {
@@ -26,6 +27,7 @@ export const featureFlags: FeatureFlags = {
   community: false,
   inbox: false,
   gamification: false,
+  quiz: false,
 };
 
 export interface ModuleRegistryItem {
@@ -107,5 +109,11 @@ export const modulesRegistry: ModuleRegistryItem[] = [
     title: 'Gamification',
     description: 'Points, badges, and leaderboard system',
     path: '/gamification',
+  },
+  {
+    key: 'quiz',
+    title: 'Quiz',
+    description: 'Daily knowledge questions and community stats',
+    path: '/quiz',
   },
 ];

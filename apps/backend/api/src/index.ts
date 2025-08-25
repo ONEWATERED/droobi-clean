@@ -12,6 +12,7 @@ import { listRooms, getRoom, listMessages, postMessage } from './lounge';
 import { listPosts, getPost, createPost, listComments, addComment } from './community';
 import { listNotifications, markRead, createNotification } from './inbox';
 import { getPoints, addPoints, listLeaderboard, listBadges, listMyBadges, logEvent } from './gamification';
+import { getTodayQuiz, getQuizById, submitResponse, getMyResponse, getStats, getHistory } from './quiz';
 
 const app = Fastify();
 await app.register(cors, { origin: true });
@@ -501,6 +502,79 @@ app.post('/points', async (req, reply) => {
   
   const newTotal = await addPoints(userId, amount, { reason });
   return reply.code(201).send({ points: newTotal });
+});
+
+// Quiz routes
+app.get('/quiz/today', async () => {
+  const quiz = await getTodayQuiz();
+  if (!quiz) {
+    return { error: 'no_quiz_available' };
+  }
+  return quiz;
+});
+
+app.get('/quiz/:id', async (req, reply) => {
+  const { id } = req.params as any;
+  const quiz = await getQuizById(id);
+  if (!quiz) return reply.code(404).send({ error: 'quiz_not_found' });
+  return quiz;
+});
+
+app.get('/quiz/:id/my-response', async (req, reply) => {
+  const { id } = req.params as any;
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  
+  const response = await getMyResponse(userId, id);
+  if (!response) return reply.code(404).send({ error: 'no_response_found' });
+  
+  return response;
+});
+
+app.post('/quiz/:id/answer', async (req, reply) => {
+  const { id } = req.params as any;
+  const { choiceIndex } = req.body as any;
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  
+  if (typeof choiceIndex !== 'number') {
+    return reply.code(400).send({ error: 'choiceIndex must be a number' });
+  }
+  
+  try {
+    const result = await submitResponse({
+      userId,
+      quizId: id,
+      choiceIndex
+    });
+    
+    if (!result) {
+      return reply.code(404).send({ error: 'quiz_not_found' });
+    }
+    
+    return reply.code(201).send({
+      correct: result.isCorrect,
+      response: result.response
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === 'You have already answered this quiz') {
+      return reply.code(409).send({ error: 'already_answered' });
+    }
+    if (error instanceof Error && error.message === 'Invalid choice index') {
+      return reply.code(400).send({ error: 'invalid_choice_index' });
+    }
+    throw error;
+  }
+});
+
+app.get('/quiz/:id/stats', async (req, reply) => {
+  const { id } = req.params as any;
+  const stats = await getStats(id);
+  return stats;
+});
+
+app.get('/quiz/history', async (req) => {
+  const { limit } = req.query as any;
+  const limitNum = limit ? parseInt(limit, 10) : 14;
+  return getHistory(limitNum);
 });
 
 const port = Number(process.env.PORT || 3001);
