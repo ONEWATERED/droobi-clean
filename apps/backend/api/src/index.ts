@@ -11,6 +11,7 @@ import { createBidRoom, getBidRoom, listBidRooms, addArtifact, addTask, inviteMe
 import { listRooms, getRoom, listMessages, postMessage } from './lounge';
 import { listPosts, getPost, createPost, listComments, addComment } from './community';
 import { listNotifications, markRead, createNotification } from './inbox';
+import { getPoints, addPoints, listLeaderboard, listBadges, listMyBadges, logEvent } from './gamification';
 
 const app = Fastify();
 await app.register(cors, { origin: true });
@@ -454,6 +455,52 @@ app.post('/inbox', async (req, reply) => {
     }
     throw error;
   }
+});
+
+// Gamification routes
+app.get('/me/points', async (req) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  const points = await getPoints(userId);
+  return { points };
+});
+
+app.get('/me/badges', async (req) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  return listMyBadges(userId);
+});
+
+app.get('/leaderboard', async (req) => {
+  const { limit } = req.query as any;
+  const limitNum = limit ? parseInt(limit, 10) : 10;
+  return listLeaderboard(limitNum);
+});
+
+app.post('/events', async (req, reply) => {
+  const { type, refId } = req.body as any;
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  
+  if (!type) {
+    return reply.code(400).send({ error: 'type is required' });
+  }
+  
+  const event = await logEvent(userId, type, refId);
+  return reply.code(201).send(event);
+});
+
+app.post('/points', async (req, reply) => {
+  const isAdmin = req.headers['x-admin'] === '1';
+  if (!isAdmin) {
+    return reply.code(401).send({ error: 'admin_required' });
+  }
+  
+  const { userId, amount, reason } = req.body as any;
+  
+  if (!userId || typeof amount !== 'number') {
+    return reply.code(400).send({ error: 'userId and amount are required' });
+  }
+  
+  const newTotal = await addPoints(userId, amount, { reason });
+  return reply.code(201).send({ points: newTotal });
 });
 
 const port = Number(process.env.PORT || 3001);

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "b1",
+    "name": "Early Adopter",
+    "icon": "Sparkles",
+    "description": "First 5 actions",
+    "criteria": {
+      "type": "events",
+      "threshold": 5
+    }
+  },
+  {
+    "id": "b2",
+    "name": "Contributor",
+    "icon": "Medal",
+    "description": "Post 3 comments",
+    "criteria": {
+      "type": "comments",
+      "threshold": 3
+    }
+  },
+  {
+    "id": "b3",
+    "name": "Explorer",
+    "icon": "Compass",
+    "description": "Visit 5 modules",
+    "criteria": {
+      "type": "modulesVisited",
+      "threshold": 5
+    }
+  }
+]
