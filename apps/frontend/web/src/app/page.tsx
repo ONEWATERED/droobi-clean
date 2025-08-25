@@ -1,9 +1,12 @@
-import { modulesRegistry, featureFlags } from '@repo/core';
+import { modulesRegistry } from '@repo/core';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import { getEffectiveFlags } from '@/lib/flags';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const featureFlags = await getEffectiveFlags();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="container mx-auto px-6 py-12">

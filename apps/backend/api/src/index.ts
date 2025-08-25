@@ -15,6 +15,7 @@ import { getPoints, addPoints, listLeaderboard, listBadges, listMyBadges, logEve
 import { getTodayQuiz, getQuizById, submitResponse, getMyResponse, getStats, getHistory } from './quiz';
 import { getToday as getTodayWaterMinute, getById as getWaterMinuteById, listHistory as getWaterMinuteHistory } from './waterMinute';
 import { listCredentials, addCredential, updateCredential, deleteCredential, getResume, setResume, getCard, setCard } from './credentials';
+import { getFlags, setFlags, getUserSettings, setUserSettings } from './admin';
 
 const app = Fastify();
 await app.register(cors, { origin: true });
@@ -667,6 +668,36 @@ app.put('/me/card', async (req, reply) => {
   
   const card = await setCard(userId, patch);
   return card;
+});
+
+// Admin routes
+app.get('/admin/flags', async () => {
+  return getFlags();
+});
+
+app.put('/admin/flags', async (req, reply) => {
+  const isAdmin = req.headers['x-admin'] === '1';
+  if (!isAdmin) {
+    return reply.code(401).send({ error: 'admin_required' });
+  }
+  
+  const patch = req.body as any;
+  const updatedFlags = await setFlags(patch);
+  return updatedFlags;
+});
+
+// User settings routes
+app.get('/me/settings', async (req) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  return getUserSettings(userId);
+});
+
+app.put('/me/settings', async (req, reply) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  const patch = req.body as any;
+  
+  const settings = await setUserSettings(userId, patch);
+  return settings;
 });
 
 const port = Number(process.env.PORT || 3001);

@@ -1,0 +1,17 @@
+{
+  "lexicon": true,
+  "directory": true,
+  "microsites": true,
+  "profiles": true,
+  "webinars": false,
+  "tv": false,
+  "trainings": false,
+  "projects": false,
+  "lounge": false,
+  "community": false,
+  "inbox": false,
+  "gamification": false,
+  "quiz": false,
+  "waterMinute": false,
+  "credentials": false
+}
