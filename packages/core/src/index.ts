@@ -7,6 +7,7 @@ export interface FeatureFlags {
   tv: boolean;
   trainings: boolean;
   projects: boolean;
+  lounge: boolean;
 }
 
 export const featureFlags: FeatureFlags = {
@@ -18,6 +19,7 @@ export const featureFlags: FeatureFlags = {
   tv: false,
   trainings: false,
   projects: true,
+  lounge: false,
 };
 
 export interface ModuleRegistryItem {
@@ -75,5 +77,11 @@ export const modulesRegistry: ModuleRegistryItem[] = [
     title: 'Projects',
     description: 'RFP opportunities and collaborative bid rooms',
     path: '/projects',
+  },
+  {
+    key: 'lounge',
+    title: 'Lounge',
+    description: 'Community chat rooms and real-time discussions',
+    path: '/lounge',
   },
 ];

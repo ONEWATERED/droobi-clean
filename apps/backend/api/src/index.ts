@@ -8,6 +8,7 @@ import { listVideos, getVideo, createVideo } from './videos';
 import { listTrainings, getTraining, enroll, setProgress, getProgress } from './trainings';
 import { listProjects, getProject, saveProject, listSaved } from './projects';
 import { createBidRoom, getBidRoom, listBidRooms, addArtifact, addTask, inviteMember, getRoomArtifacts, getRoomTasks } from './bidrooms';
+import { listRooms, getRoom, listMessages, postMessage } from './lounge';
 
 const app = Fastify();
 await app.register(cors, { origin: true });
@@ -292,6 +293,58 @@ app.post('/bid-rooms/:id/invite', async (req, reply) => {
   if (!room) return reply.code(404).send({ error: 'room_not_found' });
   
   return room;
+});
+
+// Lounge routes
+app.get('/lounge/rooms', async () => {
+  return listRooms();
+});
+
+app.get('/lounge/rooms/:id', async (req, reply) => {
+  const { id } = req.params as any;
+  const room = await getRoom(id);
+  if (!room) return reply.code(404).send({ error: 'room_not_found' });
+  return room;
+});
+
+app.get('/lounge/rooms/:id/messages', async (req, reply) => {
+  const { id } = req.params as any;
+  const { since } = req.query as any;
+  
+  // Check if room exists
+  const room = await getRoom(id);
+  if (!room) return reply.code(404).send({ error: 'room_not_found' });
+  
+  const sinceEpochMs = since ? parseInt(since, 10) : undefined;
+  const messages = await listMessages(id, sinceEpochMs);
+  
+  return {
+    items: messages,
+    now: Date.now()
+  };
+});
+
+app.post('/lounge/rooms/:id/messages', async (req, reply) => {
+  const { id } = req.params as any;
+  const { text } = req.body as any;
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  
+  if (!text || typeof text !== 'string') {
+    return reply.code(400).send({ error: 'text is required' });
+  }
+  
+  try {
+    const message = await postMessage(id, { userId, text });
+    return reply.code(201).send(message);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Room not found') {
+      return reply.code(404).send({ error: 'room_not_found' });
+    }
+    if (error instanceof Error && error.message === 'Message text cannot be empty') {
+      return reply.code(400).send({ error: 'text_cannot_be_empty' });
+    }
+    throw error;
+  }
 });
 
 const port = Number(process.env.PORT || 3001);

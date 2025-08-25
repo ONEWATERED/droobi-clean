@@ -1,0 +1,12 @@
+[
+  {
+    "id": "r1",
+    "name": "General Lounge",
+    "description": "Open chat for everyone"
+  },
+  {
+    "id": "r2",
+    "name": "Vendors & Utilities",
+    "description": "Partner intros and Q&A"
+  }
+]
