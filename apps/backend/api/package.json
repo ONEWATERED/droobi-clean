@@ -1,0 +1,26 @@
+{
+  "name": "@repo/api",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@repo/core": "workspace:*",
+    "fastify": "^4.24.3",
+    "@fastify/cors": "^8.4.0"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^20.10.0",
+    "eslint": "^8.54.0",
+    "tsx": "^4.6.2",
+    "typescript": "^5.3.2"
+  }
+}
