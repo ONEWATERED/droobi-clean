@@ -10,7 +10,6 @@ import Link from 'next/link';
 if (typeof window !== 'undefined') {
   initWebVitals();
 }
-import Link from 'next/link';
 
 const inter = Inter({ subsets: ['latin'] });
 
