@@ -1,0 +1,4 @@
+[
+  { "id": "term-water", "title": "Potable Water", "aliases": ["drinking water"], "body": "Water safe for human consumption.", "tags": ["drinking","treatment"], "sources": ["WHO"], "createdAt": 0, "updatedAt": 0 },
+  { "id": "term-storm", "title": "Stormwater", "aliases": ["runoff"], "body": "Water from precipitation that runs off surfaces.", "tags": ["stormwater","runoff"], "sources": ["EPA"], "createdAt": 0, "updatedAt": 0 }
+]

@@ -1,33 +1,25 @@
 import Fastify from 'fastify';
+import cors from '@fastify/cors';
+import { listTerms, getTerm } from './lexicon';
 
-const fastify = Fastify({
-  logger: true,
+const app = Fastify();
+await app.register(cors, { origin: true });
+
+app.get('/health', async () => ({ status: 'ok' }));
+
+app.get('/lexicon/terms', async (req) => {
+  const q = (req.query as any)?.search as string | undefined;
+  return listTerms(q);
 });
 
-// Register CORS
-fastify.register(require('@fastify/cors'), {
-  origin: true,
+app.get('/lexicon/terms/:id', async (req, reply) => {
+  const { id } = req.params as any;
+  const term = await getTerm(id);
+  if (!term) return reply.code(404).send({ error: 'not_found' });
+  return term;
 });
 
-// Health check endpoint
-fastify.get('/health', async (request, reply) => {
-  return { 
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-  };
+const port = Number(process.env.PORT || 3001);
+app.listen({ port, host: '0.0.0.0' }).then(() => {
+  console.log('API listening on', port);
 });
-
-const start = async () => {
-  try {
-    const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
-    const host = process.env.HOST || '0.0.0.0';
-    
-    await fastify.listen({ port, host });
-    console.log(`🚀 API Server running at http://${host}:${port}`);
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
-};
-
-start();
