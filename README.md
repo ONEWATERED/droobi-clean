@@ -154,6 +154,92 @@ Test the backend instrumentation by visiting `/debug-error?boom=1`.
 
 When environment variables are unset, all observability features are disabled and will not impact performance or functionality.
 
+## PR Previews (Cloud Run)
+
+Every pull request automatically deploys preview environments for both the web app and API to Google Cloud Run. Preview URLs are posted as PR comments, and resources are automatically cleaned up when PRs are closed.
+
+### Setup
+
+To enable PR previews, add the following repository secrets:
+
+**Go to Settings → Secrets and variables → Actions and add:**
+
+- `GCP_PROJECT_ID` - Your Google Cloud Project ID
+- `GCP_REGION` - Deployment region (e.g., `us-central1`)
+- `GCP_SA_KEY` - Service Account JSON key with required roles
+
+### Service Account Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Navigate to IAM & Admin → Service Accounts
+3. Create a new service account or use existing
+4. Add the following roles:
+   - `roles/run.admin` - Deploy and manage Cloud Run services
+   - `roles/iam.serviceAccountUser` - Use service accounts
+   - `roles/artifactregistry.writer` - Push container images
+5. Generate a JSON key and add it as the `GCP_SA_KEY` secret
+
+### How it Works
+
+- **On PR Open/Update**: Deploys both apps to Cloud Run with unique service names
+- **Environment**: Each PR gets isolated data namespace (`pr-{number}`)
+- **URLs**: Posted as PR comments with direct links to preview environments
+- **Cleanup**: Services are automatically deleted when PR is closed
+- **Fallback**: If secrets aren't configured, workflow posts setup instructions instead
+
+### Preview Environment Details
+
+- **API Service**: `droobi-api-pr-{number}`
+- **Web Service**: `droobi-web-pr-{number}`
+- **Configuration**: Development environment with isolated data
+- **Scaling**: Min 0 instances (cost-effective), max 2 instances
+- **Access**: Public (no authentication required for previews)
+
+**Note**: If secrets aren't configured, the workflow will gracefully exit and post setup instructions instead of failing.
+
 ## License
 
 Private repository - all rights reserved.
+
+## PR Previews (Cloud Run)
+
+Every pull request automatically deploys preview environments for both the web app and API to Google Cloud Run. Preview URLs are posted as PR comments, and resources are automatically cleaned up when PRs are closed.
+
+### Setup
+
+To enable PR previews, add the following repository secrets:
+
+**Go to Settings → Secrets and variables → Actions and add:**
+
+- `GCP_PROJECT_ID` - Your Google Cloud Project ID
+- `GCP_REGION` - Deployment region (e.g., `us-central1`)
+- `GCP_SA_KEY` - Service Account JSON key with required roles
+
+### Service Account Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Navigate to IAM & Admin → Service Accounts
+3. Create a new service account or use existing
+4. Add the following roles:
+   - `roles/run.admin` - Deploy and manage Cloud Run services
+   - `roles/iam.serviceAccountUser` - Use service accounts
+   - `roles/artifactregistry.writer` - Push container images
+5. Generate a JSON key and add it as the `GCP_SA_KEY` secret
+
+### How it Works
+
+- **On PR Open/Update**: Deploys both apps to Cloud Run with unique service names
+- **Environment**: Each PR gets isolated data namespace (`pr-{number}`)
+- **URLs**: Posted as PR comments with direct links to preview environments
+- **Cleanup**: Services are automatically deleted when PR is closed
+- **Fallback**: If secrets aren't configured, workflow posts setup instructions instead
+
+### Preview Environment Details
+
+- **API Service**: `droobi-api-pr-{number}`
+- **Web Service**: `droobi-web-pr-{number}`
+- **Configuration**: Development environment with isolated data
+- **Scaling**: Min 0 instances (cost-effective), max 2 instances
+- **Access**: Public (no authentication required for previews)
+
+**Note**: If secrets aren't configured, the workflow will gracefully exit and post setup instructions instead of failing.
