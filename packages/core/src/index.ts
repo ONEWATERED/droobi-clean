@@ -8,6 +8,7 @@ export interface FeatureFlags {
   trainings: boolean;
   projects: boolean;
   lounge: boolean;
+  community: boolean;
 }
 
 export const featureFlags: FeatureFlags = {
@@ -20,6 +21,7 @@ export const featureFlags: FeatureFlags = {
   trainings: false,
   projects: true,
   lounge: false,
+  community: false,
 };
 
 export interface ModuleRegistryItem {
@@ -83,5 +85,11 @@ export const modulesRegistry: ModuleRegistryItem[] = [
     title: 'Lounge',
     description: 'Community chat rooms and real-time discussions',
     path: '/lounge',
+  },
+  {
+    key: 'community',
+    title: 'Community',
+    description: 'Discussion posts and knowledge sharing',
+    path: '/community',
   },
 ];

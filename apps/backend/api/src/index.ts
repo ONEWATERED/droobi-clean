@@ -9,6 +9,7 @@ import { listTrainings, getTraining, enroll, setProgress, getProgress } from './
 import { listProjects, getProject, saveProject, listSaved } from './projects';
 import { createBidRoom, getBidRoom, listBidRooms, addArtifact, addTask, inviteMember, getRoomArtifacts, getRoomTasks } from './bidrooms';
 import { listRooms, getRoom, listMessages, postMessage } from './lounge';
+import { listPosts, getPost, createPost, listComments, addComment } from './community';
 
 const app = Fastify();
 await app.register(cors, { origin: true });
@@ -100,6 +101,72 @@ app.post('/webhooks/zoom', async (req, reply) => {
 app.post('/webhooks/meet', async (req, reply) => {
   await logWebhookPayload('meet', req.body);
   return { status: 'received' };
+});
+
+// Community routes
+app.get('/community/posts', async (req) => {
+  const filters = req.query as any;
+  return listPosts(filters);
+});
+
+app.get('/community/posts/:id', async (req, reply) => {
+  const { id } = req.params as any;
+  const post = await getPost(id);
+  if (!post) return reply.code(404).send({ error: 'post_not_found' });
+  return post;
+});
+
+app.post('/community/posts', async (req, reply) => {
+  const { title, body, tags } = req.body as any;
+  const authorId = (req.headers['x-user-id'] as string) || 'u1';
+  
+  if (!title || !body) {
+    return reply.code(400).send({ error: 'title and body are required' });
+  }
+  
+  try {
+    const post = await createPost({ authorId, title, body, tags });
+    return reply.code(201).send(post);
+  } catch (error) {
+    if (error instanceof Error && (error.message === 'Title is required' || error.message === 'Body is required')) {
+      return reply.code(400).send({ error: error.message });
+    }
+    throw error;
+  }
+});
+
+app.get('/community/posts/:id/comments', async (req, reply) => {
+  const { id } = req.params as any;
+  
+  // Check if post exists
+  const post = await getPost(id);
+  if (!post) return reply.code(404).send({ error: 'post_not_found' });
+  
+  const comments = await listComments(id);
+  return comments;
+});
+
+app.post('/community/posts/:id/comments', async (req, reply) => {
+  const { id } = req.params as any;
+  const { text } = req.body as any;
+  const authorId = (req.headers['x-user-id'] as string) || 'u1';
+  
+  if (!text || typeof text !== 'string') {
+    return reply.code(400).send({ error: 'text is required' });
+  }
+  
+  try {
+    const comment = await addComment({ postId: id, authorId, text });
+    return reply.code(201).send(comment);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Post not found') {
+      return reply.code(404).send({ error: 'post_not_found' });
+    }
+    if (error instanceof Error && error.message === 'Comment text cannot be empty') {
+      return reply.code(400).send({ error: 'text_cannot_be_empty' });
+    }
+    throw error;
+  }
 });
 
 // Videos routes

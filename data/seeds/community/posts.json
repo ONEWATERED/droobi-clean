@@ -1,0 +1,18 @@
+[
+  {
+    "id": "c1",
+    "authorId": "u1",
+    "title": "Welcome to the Community",
+    "body": "Kick off thread — introduce yourself!",
+    "tags": ["intro"],
+    "createdAt": 1735776000000
+  },
+  {
+    "id": "c2",
+    "authorId": "u2",
+    "title": "PFAS resources",
+    "body": "Share articles, pilots, and case studies here.",
+    "tags": ["pfas","drinking-water"],
+    "createdAt": 1735862400000
+  }
+]
