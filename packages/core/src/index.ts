@@ -7,7 +7,7 @@ export interface FeatureFlags {
 
 export const featureFlags: FeatureFlags = {
   lexicon: true,
-  directory: false,
+  directory: true,
   microsites: false,
   profiles: true,
 };

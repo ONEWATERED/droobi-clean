@@ -1,0 +1,20 @@
+[
+  {
+    "slug": "acme-filtration",
+    "name": "Acme Filtration",
+    "type": "vendor",
+    "category": "Filtration",
+    "region": "US-SE",
+    "about": "Membrane systems and skid solutions.",
+    "website": "https://example.com",
+    "email": "info@acme.com"
+  },
+  {
+    "slug": "city-water",
+    "name": "City Water Utility",
+    "type": "utility",
+    "category": "Water Utility",
+    "region": "US-SE",
+    "about": "Regional utility serving 1M+ residents."
+  }
+]
