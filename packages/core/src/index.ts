@@ -4,6 +4,7 @@ export interface FeatureFlags {
   microsites: boolean;
   profiles: boolean;
   webinars: boolean;
+  tv: boolean;
 }
 
 export const featureFlags: FeatureFlags = {
@@ -12,6 +13,7 @@ export const featureFlags: FeatureFlags = {
   microsites: false,
   profiles: true,
   webinars: false,
+  tv: false,
 };
 
 export interface ModuleRegistryItem {
@@ -51,5 +53,11 @@ export const modulesRegistry: ModuleRegistryItem[] = [
     title: 'Events',
     description: 'Webinars and educational workshops',
     path: '/events',
+  },
+  {
+    key: 'tv',
+    title: 'TV',
+    description: 'Educational videos and content library',
+    path: '/tv',
   },
 ];

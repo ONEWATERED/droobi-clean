@@ -1,0 +1,32 @@
+[
+  {
+    "id": "v1",
+    "title": "Welcome to Droobi TV",
+    "description": "Kickoff reel for the platform.",
+    "url": "https://storage.example.com/videos/welcome.mp4",
+    "poster": "https://storage.example.com/posters/welcome.jpg",
+    "tags": ["intro","platform"],
+    "publishedAt": "2025-09-01T12:00:00Z",
+    "durationSec": 90
+  },
+  {
+    "id": "v2",
+    "title": "AI for One Water – Highlights",
+    "description": "Key moments from our webinar series.",
+    "url": "https://storage.example.com/videos/ai-one-water.mp4",
+    "poster": "",
+    "tags": ["ai","one-water"],
+    "publishedAt": "2025-09-05T15:00:00Z",
+    "durationSec": 300
+  },
+  {
+    "id": "v3",
+    "title": "Permitting Agents Demo",
+    "description": "Short demo of agent workflows.",
+    "url": "https://storage.example.com/videos/permit-agents.mp4",
+    "poster": "",
+    "tags": ["agents","demo"],
+    "publishedAt": "2025-09-08T16:00:00Z",
+    "durationSec": 180
+  }
+]
