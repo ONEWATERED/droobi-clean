@@ -37,7 +37,7 @@ export default function HomePage() {
                   
                   {isEnabled ? (
                     <Link
-                      href={module.path}
+                      href={module.key === 'profiles' ? '/me' : module.path}
                       className="inline-flex items-center px-3 py-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                     >
                       Launch module

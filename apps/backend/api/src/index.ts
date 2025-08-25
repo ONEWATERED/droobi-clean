@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { listTerms, getTerm } from './lexicon';
 import { listOrgs, getOrg } from './directory';
+import { getProfile, updateProfile } from './profiles';
 
 const app = Fastify();
 await app.register(cors, { origin: true });
@@ -30,6 +31,31 @@ app.get('/org/:slug', async (req, reply) => {
   const org = await getOrg(slug);
   if (!org) return reply.code(404).send({ error: 'not_found' });
   return org;
+});
+
+// Profiles routes
+app.get('/profiles/:id', async (req, reply) => {
+  const { id } = req.params as any;
+  const profile = await getProfile(id);
+  if (!profile) return reply.code(404).send({ error: 'not_found' });
+  return profile;
+});
+
+app.get('/profiles/me', async (req, reply) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  const profile = await getProfile(userId);
+  if (!profile) return reply.code(404).send({ error: 'not_found' });
+  return profile;
+});
+
+app.patch('/profiles/me', async (req, reply) => {
+  const userId = (req.headers['x-user-id'] as string) || 'u1';
+  const patch = req.body as any;
+  
+  const updatedProfile = await updateProfile(userId, patch);
+  if (!updatedProfile) return reply.code(404).send({ error: 'not_found' });
+  
+  return updatedProfile;
 });
 
 const port = Number(process.env.PORT || 3001);

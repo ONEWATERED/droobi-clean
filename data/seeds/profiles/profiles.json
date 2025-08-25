@@ -1,0 +1,12 @@
+[
+  {
+    "id": "u1",
+    "orgId": "demo",
+    "name": "Demo User",
+    "title": "Project Manager",
+    "bio": "Leads cross-functional teams delivering water & AI projects.",
+    "skills": ["Permitting","SCADA","AI Agents"],
+    "avatarUrl": "",
+    "socials": { "linkedin": "https://linkedin.com/in/demo", "x": "https://x.com/demo" }
+  }
+]
